@@ -206,17 +206,17 @@
         
         /* Compact view styles */
         .view-compact .calendar-grid {
-            grid-template-rows: repeat(6, 120px);
+            grid-template-rows: repeat(6, 140px);
         }
         
         .view-compact .cell {
-            min-height: 120px;
-            max-height: 120px;
+            min-height: 140px;
+            max-height: 140px;
             overflow: hidden;
         }
         
         .view-compact .cell-content {
-            max-height: calc(120px - 32px);
+            max-height: calc(140px - 24px - 20px);
             overflow: hidden;
         }
         
@@ -714,8 +714,8 @@
                 let morePostsHTML = '';
                 
                 if (viewType === 'compact' && data.posts > 3) {
-                    postsToShow = 2;
-                    const remainingCount = data.posts - 2;
+                    postsToShow = 3;
+                    const remainingCount = data.posts - 3;
                     morePostsHTML = `
                         <div class="more-posts" data-post="true">
                             <span>+${remainingCount} more posts</span>
@@ -769,10 +769,15 @@
             console.log('Attaching event listeners. Total hoverable elements:', document.querySelectorAll('[data-post]').length);
             
             // Add event listeners to all hoverable elements (post chips and more-posts)
-            document.querySelectorAll('[data-post]').forEach(chip => {
+            document.querySelectorAll('[data-post]').forEach((chip, index) => {
                 const preview = chip.querySelector('.preview');
+                console.log(`Element ${index}: has preview =`, !!preview);
                 
                 chip.addEventListener('mouseenter', (e) => {
+                    if (!preview) {
+                        console.warn('No preview found for element:', chip);
+                        return;
+                    }
                     // Calculate vertical position dynamically
                     const vPos = getVerticalPosition(chip);
                     
@@ -787,6 +792,7 @@
                 });
                 
                 chip.addEventListener('mouseleave', (e) => {
+                    if (!preview) return;
                     // Check if moving to preview
                     const related = e.relatedTarget;
                     if (related && (preview.contains(related) || related === preview)) {
@@ -797,15 +803,17 @@
                     activeChip = null;
                 });
                 
-                preview.addEventListener('mouseleave', (e) => {
-                    const related = e.relatedTarget;
-                    if (related && (chip.contains(related) || related === chip)) {
-                        return;
-                    }
-                    preview.classList.remove('visible');
-                    activePreview = null;
-                    activeChip = null;
-                });
+                if (preview) {
+                    preview.addEventListener('mouseleave', (e) => {
+                        const related = e.relatedTarget;
+                        if (related && (chip.contains(related) || related === chip)) {
+                            return;
+                        }
+                        preview.classList.remove('visible');
+                        activePreview = null;
+                        activeChip = null;
+                    });
+                }
             });
         }
         
