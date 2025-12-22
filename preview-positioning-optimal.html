@@ -87,21 +87,18 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            grid-template-rows: repeat(6, 100px);
+            /* NO fixed row height - rows expand based on content */
         }
         
         .cell {
             border: 1px solid #e2e8f0;
             border-top: none;
             border-left: none;
-            padding: 6px;
+            padding: 8px;
             position: relative;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        
-        .cell:hover {
-            background: #f0f9ff;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
         }
         
         .cell:nth-child(7n) {
@@ -116,17 +113,83 @@
             font-size: 13px;
             font-weight: 500;
             color: #374151;
+            margin-bottom: 8px;
         }
         
-        .cell-position {
-            font-size: 9px;
+        .cell-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        /* Post chips */
+        .post-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 11px;
+            color: #475569;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.15s;
+        }
+        
+        .post-chip:hover {
+            background: #e2e8f0;
+        }
+        
+        .post-chip-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .post-chip-icon.twitter { background: #1d9bf0; }
+        .post-chip-icon.facebook { background: #1877f2; }
+        .post-chip-icon.pinterest { background: #e60023; }
+        .post-chip-icon.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        
+        .post-chip-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            background: #dc2626;
+            margin-left: auto;
+        }
+        
+        /* Add post button */
+        .add-post {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px;
             color: #94a3b8;
-            margin-top: 2px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-top: auto;
+            transition: background 0.15s, color 0.15s;
         }
         
+        .add-post:hover {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        /* Zone indicator */
         .cell-zone {
             position: absolute;
-            bottom: 4px;
+            top: 4px;
             right: 4px;
             font-size: 8px;
             padding: 2px 4px;
@@ -134,10 +197,8 @@
             font-weight: 600;
         }
         
-        .zone-tl { background: #fef3c7; color: #92400e; }
-        .zone-tr { background: #dbeafe; color: #1e40af; }
-        .zone-bl { background: #dcfce7; color: #166534; }
-        .zone-br { background: #fce7f3; color: #9d174d; }
+        .zone-left { background: #dbeafe; color: #1e40af; }
+        .zone-right { background: #fef3c7; color: #92400e; }
         
         /* Preview card */
         .preview {
@@ -154,7 +215,7 @@
             transition: opacity 0.15s, visibility 0.15s;
         }
         
-        /* Hover bridge - invisible extension for seamless cursor movement */
+        /* Hover bridge */
         .preview::before {
             content: '';
             position: absolute;
@@ -163,12 +224,33 @@
             width: 16px;
         }
         
-        .cell:hover .preview,
-        .preview:hover,
-        .preview:has(.dropdown.open),
-        .preview.dropdown-active {
+        .preview.visible {
             opacity: 1;
             visibility: visible;
+        }
+        
+        /* Horizontal positioning - static based on column */
+        .preview.pos-right {
+            left: calc(100% + 6px);
+        }
+        .preview.pos-right::before {
+            left: -12px;
+        }
+        
+        .preview.pos-left {
+            right: calc(100% + 6px);
+        }
+        .preview.pos-left::before {
+            right: -12px;
+        }
+        
+        /* Vertical positioning - dynamic, set via JS */
+        .preview.pos-top {
+            top: 0;
+        }
+        
+        .preview.pos-bottom {
+            bottom: 0;
         }
         
         .preview-header {
@@ -318,50 +400,6 @@
             color: #64748b;
         }
         
-        /* ========================================
-           OPTIMAL 4-ZONE POSITIONING
-           Clean 6px gap + invisible hover bridge
-           ======================================== */
-        
-        /* TOP-LEFT zone (Mon-Thu, Rows 1-3): RIGHT + TOP-aligned */
-        .zone-tl-cell .preview {
-            left: calc(100% + 6px);
-            top: 0;
-        }
-        .zone-tl-cell .preview::before {
-            left: -12px;
-            width: 12px;
-        }
-        
-        /* TOP-RIGHT zone (Fri-Sun, Rows 1-3): LEFT + TOP-aligned */
-        .zone-tr-cell .preview {
-            right: calc(100% + 6px);
-            top: 0;
-        }
-        .zone-tr-cell .preview::before {
-            right: -12px;
-            width: 12px;
-        }
-        
-        /* BOTTOM-LEFT zone (Mon-Thu, Rows 4-6): RIGHT + BOTTOM-aligned */
-        .zone-bl-cell .preview {
-            left: calc(100% + 6px);
-            bottom: 0;
-        }
-        .zone-bl-cell .preview::before {
-            left: -12px;
-            width: 12px;
-        }
-        
-        /* BOTTOM-RIGHT zone (Fri-Sun, Rows 4-6): LEFT + BOTTOM-aligned */
-        .zone-br-cell .preview {
-            right: calc(100% + 6px);
-            bottom: 0;
-        }
-        .zone-br-cell .preview::before {
-            right: -12px;
-            width: 12px;
-        }
         
         .legend {
             margin-top: 20px;
@@ -397,58 +435,41 @@
             margin-bottom: 12px;
         }
         
-        .summary-table {
-            width: 100%;
-            border-collapse: collapse;
+        .summary code {
+            background: #dcfce7;
+            padding: 2px 6px;
+            border-radius: 4px;
             font-size: 12px;
-            background: white;
+        }
+        
+        .summary pre {
+            background: #166534;
+            color: #bbf7d0;
+            padding: 12px;
             border-radius: 6px;
-            overflow: hidden;
+            font-size: 11px;
+            overflow-x: auto;
+            margin-top: 12px;
         }
         
-        .summary-table th,
-        .summary-table td {
-            padding: 8px 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .summary-table th {
-            background: #f8fafc;
+        /* Debug indicator */
+        .pos-indicator {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            font-size: 8px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            background: #f3e8ff;
+            color: #6b21a8;
             font-weight: 600;
-            color: #475569;
-        }
-        
-        .summary-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .rationale {
-            margin-top: 20px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            padding: 16px;
-            border-radius: 8px;
-        }
-        
-        .rationale h3 {
-            font-size: 14px;
-            margin-bottom: 12px;
-            color: #334155;
-        }
-        
-        .rationale ul {
-            margin-left: 20px;
-            font-size: 13px;
-            color: #475569;
-            line-height: 1.8;
         }
     </style>
 </head>
 <body>
-    <h1>Optimal Preview Positioning — 4 Zones</h1>
+    <h1>Full View — Dynamic Preview Positioning</h1>
     <div class="instructions">
-        👆 Hover cells to test. Preview always appears to the SIDE (not covering the cell), using only 4 positioning zones.
+        👆 Hover over posts to see dynamic positioning. Vertical position (top/bottom) is calculated at runtime based on available viewport space. Scroll down to see how positioning adapts.
     </div>
     
     <div class="layout">
@@ -480,97 +501,265 @@
     </div>
     
     <div class="legend">
-        <div class="legend-item"><div class="legend-color zone-tl"></div> Mon–Thu, Rows 1–3 → Right + Top</div>
-        <div class="legend-item"><div class="legend-color zone-tr"></div> Fri–Sun, Rows 1–3 → Left + Top</div>
-        <div class="legend-item"><div class="legend-color zone-bl"></div> Mon–Thu, Rows 4–6 → Right + Bottom</div>
-        <div class="legend-item"><div class="legend-color zone-br"></div> Fri–Sun, Rows 4–6 → Left + Bottom</div>
+        <div class="legend-item"><div class="legend-color zone-right"></div> Mon–Thu → Preview RIGHT</div>
+        <div class="legend-item"><div class="legend-color zone-left"></div> Fri–Sun → Preview LEFT</div>
+        <div class="legend-item"><div class="legend-color" style="background:#f3e8ff"></div> TOP/BTM = dynamic (viewport check)</div>
     </div>
     
     <div class="summary">
-        <h3>✓ Final Positioning Logic</h3>
-        <table class="summary-table">
-            <tr>
-                <th>Zone</th>
-                <th>Columns</th>
-                <th>Rows</th>
-                <th>Horizontal</th>
-                <th>Vertical</th>
-            </tr>
-            <tr>
-                <td><span class="cell-zone zone-tl" style="position:static">TL</span></td>
-                <td>Mon, Tue, Wed, Thu (0–3)</td>
-                <td>1, 2, 3</td>
-                <td>→ Right of cell</td>
-                <td>↓ Top-aligned</td>
-            </tr>
-            <tr>
-                <td><span class="cell-zone zone-tr" style="position:static">TR</span></td>
-                <td>Fri, Sat, Sun (4–6)</td>
-                <td>1, 2, 3</td>
-                <td>← Left of cell</td>
-                <td>↓ Top-aligned</td>
-            </tr>
-            <tr>
-                <td><span class="cell-zone zone-bl" style="position:static">BL</span></td>
-                <td>Mon, Tue, Wed, Thu (0–3)</td>
-                <td>4, 5, 6</td>
-                <td>→ Right of cell</td>
-                <td>↑ Bottom-aligned</td>
-            </tr>
-            <tr>
-                <td><span class="cell-zone zone-br" style="position:static">BR</span></td>
-                <td>Fri, Sat, Sun (4–6)</td>
-                <td>4, 5, 6</td>
-                <td>← Left of cell</td>
-                <td>↑ Bottom-aligned</td>
-            </tr>
-        </table>
-    </div>
-    
-    <div class="rationale">
-        <h3>Why This Is Optimal</h3>
-        <ul>
-            <li><strong>Side positioning (not covering cell):</strong> User sees context of what they hovered; other posts in cell remain visible</li>
-            <li><strong>Clean 6px gap:</strong> Visual separation between cell and preview — no ugly overlap</li>
-            <li><strong>Invisible hover bridge:</strong> The ::before pseudo-element extends 12px back toward the cell, covering the gap so cursor movement is seamless</li>
-            <li><strong>No centered vertical:</strong> Simpler logic, avoids dual-direction clipping. Just top or bottom alignment.</li>
-            <li><strong>Thu in left group:</strong> Sidebar takes left space, so left-half cells have more room to the right</li>
-            <li><strong>Row 3 in "top" group:</strong> With 6 rows, 3+3 split is balanced. Preview extending down from row 3 stays in view.</li>
-        </ul>
+        <h3>✓ Dynamic Positioning Logic</h3>
+        <p><strong>Horizontal:</strong> Static — based on column (Mon–Thu → RIGHT, Fri–Sun → LEFT)</p>
+        <p style="margin-top:8px"><strong>Vertical:</strong> Dynamic — calculated on hover:</p>
+        <pre>function getVerticalPosition(element, previewHeight = 280) {
+    const rect = element.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.top;
+    return spaceBelow >= previewHeight ? 'top' : 'bottom';
+}</pre>
     </div>
 
     <script>
         const grid = document.getElementById('grid');
-        const dates = [
-            28, 29, 30, 1, 2, 3, 4,
-            5, 6, 7, 8, 9, 10, 11,
-            12, 13, 14, 15, 16, 17, 18,
-            19, 20, 21, 22, 23, 24, 25,
-            26, 27, 28, 29, 30, 31, 1,
-            2, 3, 4, 5, 6, 7, 8
+        const PREVIEW_HEIGHT = 280;
+        
+        // Cell data: date and number of posts
+        const cellData = [
+            { date: 1, posts: 0 },
+            { date: 2, posts: 0 },
+            { date: 3, posts: 0 },
+            { date: 4, posts: 0 },
+            { date: 5, posts: 0 },
+            { date: 6, posts: 1 },
+            { date: 7, posts: 1 },
+            
+            { date: 8, posts: 0 },
+            { date: 9, posts: 0 },
+            { date: 10, posts: 0 },
+            { date: 11, posts: 0 },
+            { date: 12, posts: 0 },
+            { date: 13, posts: 0 },
+            { date: 14, posts: 3 },
+            
+            { date: 15, posts: 0 },
+            { date: 16, posts: 1 },
+            { date: 17, posts: 0 },
+            { date: 18, posts: 0 },
+            { date: 19, posts: 2 },
+            { date: 20, posts: 0 },
+            { date: 21, posts: 0 },
+            
+            { date: 22, posts: 6 },
+            { date: 23, posts: 0 },
+            { date: 24, posts: 0 },
+            { date: 25, posts: 2 },
+            { date: 26, posts: 0 },
+            { date: 27, posts: 6 },
+            { date: 28, posts: 0 },
+            
+            { date: 29, posts: 0 },
+            { date: 30, posts: 0 },
+            { date: 31, posts: 0 },
+            { date: 1, posts: 0 },
+            { date: 2, posts: 0 },
+            { date: 3, posts: 0 },
+            { date: 4, posts: 0 },
         ];
         
-        for (let row = 0; row < 6; row++) {
-            for (let col = 0; col < 7; col++) {
-                const idx = row * 7 + col;
-                const date = dates[idx];
+        const platforms = ['facebook', 'twitter', 'pinterest', 'instagram'];
+        const platformIcons = {
+            facebook: 'f',
+            twitter: '𝕏',
+            pinterest: 'P',
+            instagram: '📷'
+        };
+        
+        function getHorizontalPosition(col) {
+            // Mon-Thu (0-3) → right, Fri-Sun (4-6) → left
+            return col <= 3 ? 'right' : 'left';
+        }
+        
+        function getVerticalPosition(element) {
+            const rect = element.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.top;
+            return spaceBelow >= PREVIEW_HEIGHT ? 'top' : 'bottom';
+        }
+        
+        function createPreviewHTML() {
+            return `
+                <div class="preview-header">
+                    <div class="preview-category">
+                        <span>✦</span> Category Name
+                    </div>
+                    <div class="preview-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam...</div>
+                    <div class="menu-wrapper">
+                        <button class="preview-menu">
+                            <svg viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="8" cy="3" r="1.5"/>
+                                <circle cx="8" cy="8" r="1.5"/>
+                                <circle cx="8" cy="13" r="1.5"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown">
+                            <button class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                Edit
+                            </button>
+                            <button class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Duplicate
+                            </button>
+                            <button class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                Reschedule
+                            </button>
+                            <button class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                Move to Draft
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item danger">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="preview-image">
+                    <img src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=200&fit=crop" alt="Preview" onerror="this.parentElement.innerHTML='🖼️ Image Preview'">
+                </div>
+                <div class="preview-footer">
+                    <span>3:15 PM</span>
+                    <span>☁️ 1/3</span>
+                    <span>💬 12/55</span>
+                </div>
+            `;
+        }
+        
+        // Build grid
+        cellData.forEach((data, idx) => {
+            const row = Math.floor(idx / 7);
+            const col = idx % 7;
+            const hPos = getHorizontalPosition(col);
+            
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.col = col;
+            
+            let postsHTML = '';
+            for (let i = 0; i < data.posts; i++) {
+                const platform = platforms[i % platforms.length];
+                postsHTML += `
+                    <div class="post-chip" data-post="true">
+                        <div class="post-chip-icon ${platform}">${platformIcons[platform]}</div>
+                        <span>6:00 PM</span>
+                        <div class="post-chip-thumb"></div>
+                        <div class="preview pos-${hPos}">
+                            ${createPreviewHTML()}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            cell.innerHTML = `
+                <div class="cell-date">${data.date}</div>
+                <div class="cell-zone zone-${hPos === 'right' ? 'right' : 'left'}">${hPos === 'right' ? '→ R' : 'L ←'}</div>
+                <div class="cell-content">
+                    ${postsHTML}
+                    <div class="add-post">
+                        <span>+ add post</span>
+                    </div>
+                </div>
+            `;
+            
+            grid.appendChild(cell);
+        });
+        
+        // Hover logic with dynamic vertical positioning
+        let activePreview = null;
+        let activeChip = null;
+        
+        document.querySelectorAll('.post-chip').forEach(chip => {
+            const preview = chip.querySelector('.preview');
+            
+            chip.addEventListener('mouseenter', (e) => {
+                // Calculate vertical position dynamically
+                const vPos = getVerticalPosition(chip);
                 
-                // Zone logic: based purely on cell position
-                const isLeft = col <= 3;  // Mon, Tue, Wed, Thu
-                const isTop = row <= 2;   // Rows 1, 2, 3
-                let zone;
-                if (isTop && isLeft) zone = 'tl';
-                else if (isTop && !isLeft) zone = 'tr';
-                else if (!isTop && isLeft) zone = 'bl';
-                else zone = 'br';
+                // Remove old position classes and add new ones
+                preview.classList.remove('pos-top', 'pos-bottom');
+                preview.classList.add(`pos-${vPos}`);
                 
-                const cell = document.createElement('div');
-                cell.className = `cell zone-${zone}-cell`;
+                // Show preview
+                preview.classList.add('visible');
+                activePreview = preview;
+                activeChip = chip;
+            });
+            
+            chip.addEventListener('mouseleave', (e) => {
+                // Check if moving to preview
+                const related = e.relatedTarget;
+                if (related && (preview.contains(related) || related === preview)) {
+                    return;
+                }
+                preview.classList.remove('visible');
+                activePreview = null;
+                activeChip = null;
+            });
+            
+            preview.addEventListener('mouseleave', (e) => {
+                const related = e.relatedTarget;
+                if (related && (chip.contains(related) || related === chip)) {
+                    return;
+                }
+                preview.classList.remove('visible');
+                activePreview = null;
+                activeChip = null;
+            });
+        });
+        
+        // Dropdown logic
+        document.addEventListener('click', function(e) {
+            const menuBtn = e.target.closest('.preview-menu');
+            const dropdown = e.target.closest('.dropdown');
+            
+            if (!menuBtn && !dropdown) {
+                document.querySelectorAll('.dropdown.open').forEach(d => {
+                    d.classList.remove('open');
+                });
+                return;
+            }
+            
+            if (menuBtn) {
+                e.stopPropagation();
+                const thisDropdown = menuBtn.nextElementSibling;
+                const wasOpen = thisDropdown.classList.contains('open');
                 
-                cell.innerHTML = `
-                    <div class="cell-date">${date}</div>
-                    <div class="cell-zone zone-${zone}">${zone.toUpperCase()}</div>
-                    <div class="preview">
+                document.querySelectorAll('.dropdown.open').forEach(d => {
+                    d.classList.remove('open');
+                });
+                
+                if (!wasOpen) {
+                    thisDropdown.classList.add('open');
+                }
+            }
+            
+            if (e.target.closest('.dropdown-item')) {
+                const item = e.target.closest('.dropdown-item');
+                const action = item.textContent.trim();
+                alert(action + ' clicked!');
+                document.querySelectorAll('.dropdown.open').forEach(d => {
+                    d.classList.remove('open');
+                });
+            }
+        });
+        
+        // Update positions on scroll (for dynamic adjustment)
+        window.addEventListener('scroll', () => {
+            if (activePreview && activeChip) {
+                const vPos = getVerticalPosition(activeChip);
+                activePreview.classList.remove('pos-top', 'pos-bottom');
+                activePreview.classList.add(`pos-${vPos}`);
+            }
+        }, { passive: true });
                         <div class="preview-header">
                             <div class="preview-category">
                                 <span>✦</span> Category Name
@@ -623,62 +812,6 @@
             }
         }
         
-        // Close dropdowns when hovering other cells
-        document.addEventListener('mouseenter', function(e) {
-            if (e.target.classList.contains('cell')) {
-                // Close all dropdowns when entering a new cell
-                document.querySelectorAll('.dropdown.open').forEach(d => {
-                    d.classList.remove('open');
-                    d.closest('.preview')?.classList.remove('dropdown-active');
-                });
-            }
-        }, true);
-
-        // Dropdown toggle logic
-        document.addEventListener('click', function(e) {
-            const menuBtn = e.target.closest('.preview-menu');
-            const dropdown = e.target.closest('.dropdown');
-            
-            // Close all dropdowns first
-            if (!menuBtn && !dropdown) {
-                document.querySelectorAll('.dropdown.open').forEach(d => {
-                    d.classList.remove('open');
-                    d.closest('.preview')?.classList.remove('dropdown-active');
-                });
-                return;
-            }
-            
-            // Toggle dropdown on menu button click
-            if (menuBtn) {
-                e.stopPropagation();
-                const thisDropdown = menuBtn.nextElementSibling;
-                const thisPreview = menuBtn.closest('.preview');
-                const wasOpen = thisDropdown.classList.contains('open');
-                
-                // Close all others
-                document.querySelectorAll('.dropdown.open').forEach(d => {
-                    d.classList.remove('open');
-                    d.closest('.preview')?.classList.remove('dropdown-active');
-                });
-                
-                // Toggle this one
-                if (!wasOpen) {
-                    thisDropdown.classList.add('open');
-                    thisPreview?.classList.add('dropdown-active');
-                }
-            }
-            
-            // Handle dropdown item click
-            if (e.target.closest('.dropdown-item')) {
-                const item = e.target.closest('.dropdown-item');
-                const action = item.textContent.trim();
-                alert(action + ' clicked!');
-                document.querySelectorAll('.dropdown.open').forEach(d => {
-                    d.classList.remove('open');
-                    d.closest('.preview')?.classList.remove('dropdown-active');
-                });
-            }
-        });
     </script>
 </body>
 </html>
