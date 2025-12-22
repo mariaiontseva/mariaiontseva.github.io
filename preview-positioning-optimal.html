@@ -171,6 +171,75 @@
             display: none;
         }
         
+        /* Tab navigation */
+        .tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 16px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .tab:hover:not(.active) {
+            color: #334155;
+        }
+        
+        /* Compact view styles */
+        .view-compact .calendar-grid {
+            grid-template-rows: repeat(6, 120px);
+        }
+        
+        .view-compact .cell {
+            min-height: 120px;
+            max-height: 120px;
+            overflow: hidden;
+        }
+        
+        .view-compact .cell-content {
+            max-height: calc(120px - 32px);
+            overflow: hidden;
+        }
+        
+        /* More posts link */
+        .more-posts {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 4px 8px;
+            color: #6366f1;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 2px;
+            transition: background 0.15s;
+            position: relative;
+        }
+        
+        .more-posts:hover {
+            background: #e0e7ff;
+        }
+        
         /* Zone indicator */
         .cell-zone {
             position: absolute;
@@ -452,12 +521,17 @@
     </style>
 </head>
 <body>
-    <h1>Full View — Dynamic Preview Positioning</h1>
+    <h1>Calendar Views — Dynamic Preview Positioning</h1>
     <div class="instructions">
-        👆 Hover over posts to see dynamic positioning. Vertical position (top/bottom) is calculated at runtime based on available viewport space. Scroll down to see how positioning adapts.
+        👆 Hover over posts to see dynamic positioning. Vertical position (top/bottom) is calculated at runtime based on available viewport space. Switch between Compact and Full views.
     </div>
     
-    <div class="layout">
+    <div class="tabs">
+        <button class="tab active" data-view="compact">Compact</button>
+        <button class="tab" data-view="full">Full</button>
+    </div>
+    
+    <div class="layout view-compact" id="calendar-layout">
         <div class="sidebar">
             <div class="sidebar-label">Post Status</div>
             <div class="sidebar-item">Upcoming: 16</div>
@@ -619,92 +693,121 @@
             `;
         }
         
-        // Build grid
-        console.log('Building grid with', cellData.length, 'cells');
-        cellData.forEach((data, idx) => {
-            const row = Math.floor(idx / 7);
-            const col = idx % 7;
-            const hPos = getHorizontalPosition(col);
-            console.log(`Creating cell ${idx}: date=${data.date}, posts=${data.posts}`);
+        let currentView = 'compact';
+        
+        function buildGrid(viewType = 'compact') {
+            grid.innerHTML = '';
+            console.log('Building grid with', cellData.length, 'cells in', viewType, 'view');
             
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.dataset.col = col;
-            
-            let postsHTML = '';
-            for (let i = 0; i < data.posts; i++) {
-                const platform = platforms[i % platforms.length];
-                postsHTML += `
-                    <div class="post-chip" data-post="true">
-                        <div class="post-chip-icon ${platform}">${platformIcons[platform]}</div>
-                        <span>6:00 PM</span>
-                        <div class="post-chip-thumb"></div>
-                        <div class="preview pos-${hPos}">
-                            ${createPreviewHTML()}
+            cellData.forEach((data, idx) => {
+                const row = Math.floor(idx / 7);
+                const col = idx % 7;
+                const hPos = getHorizontalPosition(col);
+                console.log(`Creating cell ${idx}: date=${data.date}, posts=${data.posts}`);
+                
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.col = col;
+                
+                let postsHTML = '';
+                let postsToShow = data.posts;
+                let morePostsHTML = '';
+                
+                if (viewType === 'compact' && data.posts > 3) {
+                    postsToShow = 2;
+                    const remainingCount = data.posts - 2;
+                    morePostsHTML = `
+                        <div class="more-posts" data-post="true">
+                            <span>+${remainingCount} more posts</span>
+                            <div class="preview pos-${hPos}">
+                                ${createPreviewHTML()}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                for (let i = 0; i < postsToShow; i++) {
+                    const platform = platforms[i % platforms.length];
+                    postsHTML += `
+                        <div class="post-chip" data-post="true">
+                            <div class="post-chip-icon ${platform}">${platformIcons[platform]}</div>
+                            <span>6:00 PM</span>
+                            <div class="post-chip-thumb"></div>
+                            <div class="preview pos-${hPos}">
+                                ${createPreviewHTML()}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                cell.innerHTML = `
+                    <div class="cell-date">${data.date}</div>
+                    <div class="cell-zone zone-${hPos === 'right' ? 'right' : 'left'}">${hPos === 'right' ? '→ R' : 'L ←'}</div>
+                    <div class="cell-content">
+                        ${postsHTML}
+                        ${morePostsHTML}
+                        <div class="add-post">
+                            <span>+ add post</span>
                         </div>
                     </div>
                 `;
-            }
+                
+                grid.appendChild(cell);
+            });
             
-            cell.innerHTML = `
-                <div class="cell-date">${data.date}</div>
-                <div class="cell-zone zone-${hPos === 'right' ? 'right' : 'left'}">${hPos === 'right' ? '→ R' : 'L ←'}</div>
-                <div class="cell-content">
-                    ${postsHTML}
-                    <div class="add-post">
-                        <span>+ add post</span>
-                    </div>
-                </div>
-            `;
-            
-            grid.appendChild(cell);
-        });
+            attachEventListeners();
+        }
         
-        console.log('Grid built. Total post chips:', document.querySelectorAll('.post-chip').length);
+        // Build initial grid
+        buildGrid(currentView);
         
         // Hover logic with dynamic vertical positioning
         let activePreview = null;
         let activeChip = null;
         
-        // Add event listeners to all post chips (after they're created)
-        document.querySelectorAll('.post-chip').forEach(chip => {
-            const preview = chip.querySelector('.preview');
+        function attachEventListeners() {
+            console.log('Attaching event listeners. Total hoverable elements:', document.querySelectorAll('[data-post]').length);
             
-            chip.addEventListener('mouseenter', (e) => {
-                // Calculate vertical position dynamically
-                const vPos = getVerticalPosition(chip);
+            // Add event listeners to all hoverable elements (post chips and more-posts)
+            document.querySelectorAll('[data-post]').forEach(chip => {
+                const preview = chip.querySelector('.preview');
                 
-                // Remove old position classes and add new ones
-                preview.classList.remove('pos-top', 'pos-bottom');
-                preview.classList.add(`pos-${vPos}`);
+                chip.addEventListener('mouseenter', (e) => {
+                    // Calculate vertical position dynamically
+                    const vPos = getVerticalPosition(chip);
+                    
+                    // Remove old position classes and add new ones
+                    preview.classList.remove('pos-top', 'pos-bottom');
+                    preview.classList.add(`pos-${vPos}`);
+                    
+                    // Show preview
+                    preview.classList.add('visible');
+                    activePreview = preview;
+                    activeChip = chip;
+                });
                 
-                // Show preview
-                preview.classList.add('visible');
-                activePreview = preview;
-                activeChip = chip;
+                chip.addEventListener('mouseleave', (e) => {
+                    // Check if moving to preview
+                    const related = e.relatedTarget;
+                    if (related && (preview.contains(related) || related === preview)) {
+                        return;
+                    }
+                    preview.classList.remove('visible');
+                    activePreview = null;
+                    activeChip = null;
+                });
+                
+                preview.addEventListener('mouseleave', (e) => {
+                    const related = e.relatedTarget;
+                    if (related && (chip.contains(related) || related === chip)) {
+                        return;
+                    }
+                    preview.classList.remove('visible');
+                    activePreview = null;
+                    activeChip = null;
+                });
             });
-            
-            chip.addEventListener('mouseleave', (e) => {
-                // Check if moving to preview
-                const related = e.relatedTarget;
-                if (related && (preview.contains(related) || related === preview)) {
-                    return;
-                }
-                preview.classList.remove('visible');
-                activePreview = null;
-                activeChip = null;
-            });
-            
-            preview.addEventListener('mouseleave', (e) => {
-                const related = e.relatedTarget;
-                if (related && (chip.contains(related) || related === chip)) {
-                    return;
-                }
-                preview.classList.remove('visible');
-                activePreview = null;
-                activeChip = null;
-            });
-        });
+        }
         
         // Dropdown logic
         document.addEventListener('click', function(e) {
@@ -750,6 +853,25 @@
                 activePreview.classList.add(`pos-${vPos}`);
             }
         }, { passive: true });
+        
+        // Tab switching logic
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const viewType = tab.dataset.view;
+                const layout = document.getElementById('calendar-layout');
+                
+                // Update active tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update layout class
+                layout.className = layout.className.replace(/view-\w+/, `view-${viewType}`);
+                
+                // Rebuild grid
+                currentView = viewType;
+                buildGrid(viewType);
+            });
+        });
         
     </script>
 </body>
