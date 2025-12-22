@@ -99,6 +99,7 @@
             min-height: 100px;
             display: flex;
             flex-direction: column;
+            overflow: visible;
         }
         
         .cell:nth-child(7n) {
@@ -206,12 +207,12 @@
         
         /* Compact view styles */
         .view-compact .calendar-grid {
-            grid-template-rows: repeat(6, 140px);
+            grid-template-rows: repeat(6, 180px);
         }
         
         .view-compact .cell {
-            height: 140px;
-            overflow: hidden;
+            height: 180px;
+            overflow: visible;
         }
         
         /* More posts link */
@@ -256,7 +257,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             border: 1px solid #e2e8f0;
-            z-index: 100;
+            z-index: 1000;
             pointer-events: auto;
             opacity: 0;
             visibility: hidden;
