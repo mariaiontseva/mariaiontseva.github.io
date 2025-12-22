@@ -251,7 +251,7 @@
         
         .view-week-compact .cell {
             height: 500px;
-            overflow-y: auto;
+            overflow: visible;
         }
         
         /* More posts link */
@@ -739,8 +739,16 @@
         }
         
         function buildWeekView() {
-            // Show one week (7 days) - days 6-12
-            const weekData = cellData.slice(5, 12);
+            // Create week data with more posts
+            const weekData = [
+                { date: 4, posts: 5 },
+                { date: 5, posts: 6 }, 
+                { date: 6, posts: 4 },
+                { date: 7, posts: 8 },
+                { date: 8, posts: 3 },
+                { date: 9, posts: 7 },
+                { date: 10, posts: 5 }
+            ];
             const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             
             weekData.forEach((data, idx) => {
