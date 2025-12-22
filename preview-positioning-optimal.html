@@ -100,6 +100,12 @@
             display: flex;
             flex-direction: column;
             overflow: visible;
+            transition: background 0.15s;
+        }
+        
+        .cell:hover {
+            background: rgba(147, 197, 253, 0.05);
+            box-shadow: inset 0 0 0 2px #3b82f6;
         }
         
         .cell:nth-child(7n) {
@@ -122,6 +128,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            padding-bottom: 32px;
         }
         
         /* Post chips */
@@ -171,7 +178,26 @@
         
         /* Add post button */
         .add-post {
-            display: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 8px;
+            color: #3b82f6;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: auto;
+            transition: opacity 0.15s;
+            opacity: 0;
+            font-weight: 500;
+        }
+        
+        .cell:hover .add-post {
+            opacity: 1;
+        }
+        
+        .add-post:hover {
+            color: #1d4ed8;
         }
         
         /* Tab navigation */
@@ -209,11 +235,11 @@
         
         /* Compact view styles */
         .view-compact .calendar-grid {
-            grid-template-rows: repeat(6, 180px);
+            grid-template-rows: repeat(6, 212px);
         }
         
         .view-compact .cell {
-            height: 180px;
+            height: 212px;
             overflow: visible;
         }
         
