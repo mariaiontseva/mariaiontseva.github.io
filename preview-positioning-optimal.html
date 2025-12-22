@@ -210,13 +210,7 @@
         }
         
         .view-compact .cell {
-            min-height: 140px;
-            max-height: 140px;
-            overflow: hidden;
-        }
-        
-        .view-compact .cell-content {
-            max-height: calc(140px - 24px - 20px);
+            height: 140px;
             overflow: hidden;
         }
         
@@ -710,23 +704,9 @@
                 cell.dataset.col = col;
                 
                 let postsHTML = '';
-                let postsToShow = data.posts;
-                let morePostsHTML = '';
                 
-                if (viewType === 'compact' && data.posts > 3) {
-                    postsToShow = 3;
-                    const remainingCount = data.posts - 3;
-                    morePostsHTML = `
-                        <div class="more-posts" data-post="true">
-                            <span>+${remainingCount} more posts</span>
-                            <div class="preview pos-${hPos}">
-                                ${createPreviewHTML()}
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                for (let i = 0; i < postsToShow; i++) {
+                // Always show all posts - no difference between compact and full except cell height
+                for (let i = 0; i < data.posts; i++) {
                     const platform = platforms[i % platforms.length];
                     postsHTML += `
                         <div class="post-chip" data-post="true">
@@ -745,7 +725,6 @@
                     <div class="cell-zone zone-${hPos === 'right' ? 'right' : 'left'}">${hPos === 'right' ? '→ R' : 'L ←'}</div>
                     <div class="cell-content">
                         ${postsHTML}
-                        ${morePostsHTML}
                         <div class="add-post">
                             <span>+ add post</span>
                         </div>
