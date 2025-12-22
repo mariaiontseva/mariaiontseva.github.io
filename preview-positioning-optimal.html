@@ -635,10 +635,12 @@
         }
         
         // Build grid
+        console.log('Building grid with', cellData.length, 'cells');
         cellData.forEach((data, idx) => {
             const row = Math.floor(idx / 7);
             const col = idx % 7;
             const hPos = getHorizontalPosition(col);
+            console.log(`Creating cell ${idx}: date=${data.date}, posts=${data.posts}`);
             
             const cell = document.createElement('div');
             cell.className = 'cell';
@@ -672,6 +674,8 @@
             
             grid.appendChild(cell);
         });
+        
+        console.log('Grid built. Total post chips:', document.querySelectorAll('.post-chip').length);
         
         // Hover logic with dynamic vertical positioning
         let activePreview = null;
