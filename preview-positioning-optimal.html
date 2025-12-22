@@ -623,6 +623,17 @@
             }
         }
         
+        // Close dropdowns when hovering other cells
+        document.addEventListener('mouseenter', function(e) {
+            if (e.target.classList.contains('cell')) {
+                // Close all dropdowns when entering a new cell
+                document.querySelectorAll('.dropdown.open').forEach(d => {
+                    d.classList.remove('open');
+                    d.closest('.preview')?.classList.remove('dropdown-active');
+                });
+            }
+        }, true);
+
         // Dropdown toggle logic
         document.addEventListener('click', function(e) {
             const menuBtn = e.target.closest('.preview-menu');
