@@ -753,12 +753,14 @@
                 console.log(`Element ${index}: has preview =`, !!preview);
                 
                 chip.addEventListener('mouseenter', (e) => {
+                    console.log('Mouse enter on element:', chip);
                     if (!preview) {
                         console.warn('No preview found for element:', chip);
                         return;
                     }
                     // Calculate vertical position dynamically
                     const vPos = getVerticalPosition(chip);
+                    console.log('Setting position:', vPos);
                     
                     // Remove old position classes and add new ones
                     preview.classList.remove('pos-top', 'pos-bottom');
@@ -766,6 +768,7 @@
                     
                     // Show preview
                     preview.classList.add('visible');
+                    console.log('Preview classes:', preview.className);
                     activePreview = preview;
                     activeChip = chip;
                 });
