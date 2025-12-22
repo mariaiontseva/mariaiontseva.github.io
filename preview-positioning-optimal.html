@@ -677,6 +677,7 @@
         let activePreview = null;
         let activeChip = null;
         
+        // Add event listeners to all post chips (after they're created)
         document.querySelectorAll('.post-chip').forEach(chip => {
             const preview = chip.querySelector('.preview');
             
