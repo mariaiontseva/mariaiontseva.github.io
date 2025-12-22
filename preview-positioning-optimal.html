@@ -243,6 +243,17 @@
             overflow: visible;
         }
         
+        /* Week-Compact view styles */
+        .view-week-compact .calendar-grid {
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: 1fr;
+        }
+        
+        .view-week-compact .cell {
+            height: 500px;
+            overflow-y: auto;
+        }
+        
         /* More posts link */
         .more-posts {
             display: flex;
@@ -549,6 +560,7 @@
     <div class="tabs">
         <button class="tab active" data-view="compact">Compact</button>
         <button class="tab" data-view="full">Full</button>
+        <button class="tab" data-view="week-compact">Week-Compact</button>
     </div>
     
     <div class="layout view-compact" id="calendar-layout">
@@ -719,6 +731,61 @@
             grid.innerHTML = '';
             console.log('Building grid with', cellData.length, 'cells in', viewType, 'view');
             
+            if (viewType === 'week-compact') {
+                buildWeekView();
+            } else {
+                buildMonthView(viewType);
+            }
+        }
+        
+        function buildWeekView() {
+            // Show one week (7 days) - days 6-12
+            const weekData = cellData.slice(5, 12);
+            const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            
+            weekData.forEach((data, idx) => {
+                const col = idx;
+                const hPos = getHorizontalPosition(col);
+                
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.col = col;
+                
+                let postsHTML = '';
+                
+                // Show all posts in week view
+                for (let i = 0; i < data.posts; i++) {
+                    const platform = platforms[i % platforms.length];
+                    postsHTML += `
+                        <div class="post-chip" data-post="true">
+                            <div class="post-chip-icon ${platform}">${platformIcons[platform]}</div>
+                            <span>6:00 PM</span>
+                            <div class="post-chip-thumb"></div>
+                            <div class="preview pos-${hPos}">
+                                ${createPreviewHTML()}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                cell.innerHTML = `
+                    <div class="cell-date">${dayNames[idx]}, Aug ${data.date}</div>
+                    <div class="cell-zone zone-${hPos === 'right' ? 'right' : 'left'}">${hPos === 'right' ? '→ R' : 'L ←'}</div>
+                    <div class="cell-content">
+                        ${postsHTML}
+                        <div class="add-post">
+                            <span>+ add post</span>
+                        </div>
+                    </div>
+                `;
+                
+                grid.appendChild(cell);
+            });
+            
+            attachEventListeners();
+        }
+        
+        function buildMonthView(viewType) {
             cellData.forEach((data, idx) => {
                 const row = Math.floor(idx / 7);
                 const col = idx % 7;
