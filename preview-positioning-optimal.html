@@ -152,6 +152,7 @@
             justify-content: center;
             color: white;
             font-size: 10px;
+            flex-shrink: 0;
         }
         
         .post-chip-icon.twitter { background: #1d9bf0; }
@@ -165,6 +166,7 @@
             border-radius: 4px;
             background: #dc2626;
             margin-left: auto;
+            flex-shrink: 0;
         }
         
         /* Add post button */
@@ -517,9 +519,6 @@
 </head>
 <body>
     <h1>Calendar Views — Dynamic Preview Positioning</h1>
-    <div class="instructions">
-        👆 Hover over posts to see dynamic positioning. Vertical position (top/bottom) is calculated at runtime based on available viewport space. Switch between Compact and Full views.
-    </div>
     
     <div class="tabs">
         <button class="tab active" data-view="compact">Compact</button>
@@ -706,8 +705,9 @@
                 
                 let postsHTML = '';
                 
-                // Always show all posts - no difference between compact and full except cell height
-                for (let i = 0; i < data.posts; i++) {
+                // In compact view, limit to 3 posts
+                const maxPosts = viewType === 'compact' ? Math.min(3, data.posts) : data.posts;
+                for (let i = 0; i < maxPosts; i++) {
                     const platform = platforms[i % platforms.length];
                     postsHTML += `
                         <div class="post-chip" data-post="true">
